@@ -10,4 +10,4 @@ script:
   - flake8 --show-source --show-pep8 python
   - bash -ex .travis-opam.sh
 env:
-  - OCAML_VERSION=4.02 PACKAGE=xapi-storage
+  - OCAML_VERSION=4.02 PACKAGE=xapi-storage PINS="rpc:https://github.com/jonludlam/ocaml-rpc.git#ppx2"
