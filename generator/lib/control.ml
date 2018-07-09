@@ -147,8 +147,20 @@ let sr = Param.mk ~name:"sr" ~description:["The Storage Repository"]
     Types.string
 
 
-module Volume(R: RPC) = struct
+module type ERRORS = sig
+  type errors
+  val def : errors Idl.Error.t
+end
+
+module Errors = struct
+  type errors = exns
+  let def = errors
+end
+
+module Volume(Errors : ERRORS)(R: RPC) = struct
   open R
+
+  let errors = Errors.def
 
   let key = Param.mk ~name:"key" ~description:["The volume key"] key
 
@@ -316,6 +328,8 @@ module Volume(R: RPC) = struct
        version=(5,0,0)}
 end
 
+module VolumeInterface = Volume(Errors)
+
 type configuration = (string * string) list [@@deriving rpcty]
 (** Plugin-specific configuration which describes where and
     how to locate the storage repository. This may include the
@@ -440,7 +454,7 @@ module Sr(R : RPC) = struct
 
 end
 
-module V = Volume(Codegen.Gen ())
+module V = VolumeInterface(Codegen.Gen ())
 module S = Sr(Codegen.Gen ())
 
 let interfaces = Codegen.Interfaces.create
